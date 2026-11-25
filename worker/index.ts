@@ -8,7 +8,7 @@ const id = () => crypto.randomUUID();
 const b64 = (b:ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const random = (n=32) => { const b=new Uint8Array(n); crypto.getRandomValues(b); return b64(b.buffer); };
 const digest = async (s:string) => b64(await crypto.subtle.digest("SHA-256",enc.encode(s)));
-async function hashPassword(p:string,salt=random(16)){const key=await crypto.subtle.importKey("raw",enc.encode(p),"PBKDF2",false,["deriveBits"]);const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt:Uint8Array.from(atob(salt.replace(/-/g,"+").replace(/_/g,"/")+"=="),c=>c.charCodeAt(0)),iterations:210000,hash:"SHA-256"},key,256);return {salt,hash:b64(bits)};}
+async function hashPassword(p:string,salt=random(16)){const key=await crypto.subtle.importKey("raw",enc.encode(p),"PBKDF2",false,["deriveBits"]);const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt:Uint8Array.from(atob(salt.replace(/-/g,"+").replace(/_/g,"/")+"=="),c=>c.charCodeAt(0)),iterations:100000,hash:"SHA-256"},key,256);return {salt,hash:b64(bits)};}
 async function verifyPassword(p:string,salt:string,expected:string){return (await hashPassword(p,salt)).hash===expected;}
 const schema = [
 `CREATE TABLE IF NOT EXISTS cgx_users(id TEXT PRIMARY KEY,name TEXT NOT NULL,email TEXT NOT NULL,email_norm TEXT NOT NULL UNIQUE,phone TEXT NOT NULL,password_hash TEXT NOT NULL,password_salt TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',must_change_password INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL)`,
