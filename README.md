@@ -35,12 +35,12 @@
 ## متطلبات النشر
 1. أضف GitHub Actions secrets باسم `CLOUDFLARE_API_TOKEN` و`CLOUDFLARE_ACCOUNT_ID`.
 2. أضف Worker secret باسم `ADMIN_BOOTSTRAP_SECRET` من إعدادات Worker.
-3. بعد تجهيز الأسرار، شغّل Workflow `Deploy COLONY GESTION API) يدوياً من تبويب Actions.
+3. بعد تجهيز الأسرار، شغّل Workflow `Deploy COLONY GESTION API` يدوياً من تبويب Actions إذا لم يكن نشر Git الخاص بـ Cloudflare مفعّلاً.
 4. شغّل الموقع على Pages. أول مرة، اختر إعداد المدير وأدخل `ADMIN_BOOTSTRAP_SECRET`. البريد الإداري ثابت: `haniMr_hp@hotmail.com`.
 5. اختبر `/health` ثم سجّل الدخول كمدير، وفعّل حسابات المستخدمين أو أنشئ أكواد التفعيل.
 
-## التحقق الآلي
-Workflow `Validate COLONY GESTION` يبني الواجهة ويجري dry-run للـ Worker عند كل تحديث على `main`. نشر الـ Worker منفصل ويدوي حتى لا يحدث نشر قبل تجهيز أسرار Cloudflare.
+## التحقق الآلي والنشر
+Workflow `Validate COLONY GESTION` يبني الواجهة ويجري dry-run للـ Worker عند كل تحديث على `main`. عند ربط Worker مباشرةً بـ Git، يؤدي كل Commit على الفرع المتصل إلى بدء Build ونشر حسب إعدادات Cloudflare. Workflow النشر اليدوي يبقى بديلاً عند عدم تفعيل النشر المباشر.
 
 ## الأمان
 - كلمات مرور المستخدمين تُخزّن كـ PBKDF2-SHA256 hashes مع salt عشوائي.
