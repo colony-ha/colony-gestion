@@ -1,0 +1,15 @@
+{
+  "name": "COLONY GESTION",
+  "short_name": "COLONY",
+  "description": "إدارة المخزون والمشتريات والمبيعات والمصاريف",
+  "lang": "ar",
+  "dir": "auto",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#090a09",
+  "theme_color": "#090a09",
+  "icons": [
+    {"src": "/colony-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}
