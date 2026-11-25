@@ -26,7 +26,7 @@ const schema = [
 `CREATE TABLE IF NOT EXISTS cgx_org_access(org_id TEXT PRIMARY KEY,authorized INTEGER NOT NULL DEFAULT 0)`,
 `CREATE TABLE IF NOT EXISTS cgx_audit(id TEXT PRIMARY KEY,actor TEXT NOT NULL,action TEXT NOT NULL,details TEXT,created_at TEXT NOT NULL)`
 ];
-async function init(db:D1Database){for(const q of schema)await db.prepare(q).run();try{await db.prepare("ALTER TABLE cgx_sessions ADD COLUMN org_id TEXT").run();}catch{}}
+async function init(db:D1Database){for(const q of schema)await db.prepare(q).run();}
 async function readBody(req:Request):Promise<Row>{try{return await req.json() as Row;}catch{return {};}}
 function cors(req:Request,env:Env){const origin=req.headers.get("Origin")||"";const allowed=["https://colony-gestion.pages.dev",env.APP_ORIGIN||""];return {"Access-Control-Allow-Origin":allowed.includes(origin)?origin:allowed[0],"Access-Control-Allow-Methods":"GET,POST,PUT,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type,Authorization","Vary":"Origin"};}
 function reply(data:unknown,status:number,headers:Record<string,string>){return json(data,status,headers);}
@@ -74,4 +74,4 @@ const recMatch=path.match(/^\/records\/([a-f0-9-]+)$/i);if(recMatch&&method==="P
 if(recMatch&&method==="DELETE"){if(admin||session.user.status!=="active")return send({success:false,message:"العمليات مقفلة حتى تفعيل الحساب."},403);const rid=recMatch[1],old=await env.DB.prepare("SELECT type FROM cgx_records WHERE id=? AND org_id=?").bind(rid,session.org.id).first<Row>();if(!old)return send({success:false,message:"السجل غير موجود."},404);if(old.type==="products"){const used=await env.DB.prepare("SELECT COUNT(*) n FROM cgx_stock_moves WHERE org_id=? AND product_id=?").bind(session.org.id,rid).first<Row>();if(Number(used?.n||0)>0)return send({success:false,message:"لا يمكن حذف منتج مرتبط بحركات مخزون أو فواتير. عالج الحركات أولاً."},409);}await env.DB.batch([env.DB.prepare("DELETE FROM cgx_stock_moves WHERE source_id=? AND org_id=?").bind(rid,session.org.id),env.DB.prepare("DELETE FROM cgx_records WHERE id=? AND org_id=?").bind(rid,session.org.id)]);return send({success:true});}
 if(path==="/stock"&&method==="GET"){if(admin)return send({success:false,message:"غير مصرح."},403);const r=await env.DB.prepare("SELECT p.id,p.data,COALESCE(SUM(m.quantity),0) stock FROM cgx_records p LEFT JOIN cgx_stock_moves m ON m.product_id=p.id AND m.org_id=p.org_id WHERE p.org_id=? AND p.type='products' GROUP BY p.id").bind(session.org.id).all<Row>();return send({success:true,products:(r.results||[]).map(x=>({id:x.id,...JSON.parse(x.data),stock:Number(x.stock)}))});}
 return send({success:false,message:"المسار غير موجود."},404);
-}catch(e){return send({success:false,message:"حدث خطأ داخلي في الخادم. راجع إعدادات D1 وسجلات Worker."},500);}}};
+}catch(e){console.error("COLONY_GESTION_API_ERROR",e);return send({success:false,message:"حدث خطأ داخلي في الخادم. راجع سجلات Worker."},500);}}};
