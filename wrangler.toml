@@ -1,0 +1,9 @@
+name = "colony-gestion-api"
+main = "worker/index.ts"
+compatibility_date = "2026-11-25"
+workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "colony-gestion-db"
+database_id = "0be65824-03cc-404d-b16c-9f0b94accf3b"
