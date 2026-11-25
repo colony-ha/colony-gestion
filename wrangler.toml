@@ -1,5 +1,0 @@
-name = "colony-gestion-api"
-main = "worker/index.ts"
-compatibility_date = "2026-11-25"
-
-# D1 binding will be added after the new colony-gestion-db is created.
