@@ -1,0 +1,45 @@
+name: Publish COLONY GESTION live update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'package.json'
+      - 'capacitor.config.ts'
+      - '.github/workflows/capgo-live-update.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build web bundle
+        run: npm run build
+
+      - name: Publish OTA bundle to Capgo
+        if: ${{ secrets.CAPGO_TOKEN != '' }}
+        env:
+          CAPGO_TOKEN: ${{ secrets.CAPGO_TOKEN }}
+        run: npx --yes @capgo/cli bundle upload --channel production --apikey "$CAPGO_TOKEN"
+
+      - name: Explain missing Capgo setup
+        if: ${{ secrets.CAPGO_TOKEN == '' }}
+        run: |
+          echo "::notice::Web build passed. Add the CAPGO_TOKEN repository secret after registering com.colony.gestion in Capgo to enable automatic phone updates."
