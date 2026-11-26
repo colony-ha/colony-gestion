@@ -30,6 +30,12 @@ jobs:
         run: npm install
       - name: Build application
         run: npm run build
+      - name: Generate COLONY GESTION Windows icon
+        shell: pwsh
+        run: |
+          npm install --no-save sharp
+          New-Item -ItemType Directory -Force build | Out-Null
+          node -e "const sharp=require('sharp');const fs=require('fs');(async()=>{const png=await sharp('public/colony-icon.svg').resize(256,256,{fit:'contain',background:'#050505'}).png().toBuffer();const h=Buffer.alloc(22);h.writeUInt16LE(0,0);h.writeUInt16LE(1,2);h.writeUInt16LE(1,4);h[6]=0;h[7]=0;h[8]=0;h[9]=0;h.writeUInt16LE(1,10);h.writeUInt16LE(32,12);h.writeUInt32LE(png.length,14);h.writeUInt32LE(22,18);fs.writeFileSync('build/colony.ico',Buffer.concat([h,png]));})();"
       - name: Create Windows installer
         run: npx electron-builder --win nsis --x64 --publish never
       - name: Upload Windows installer
