@@ -28,6 +28,7 @@ const schema = [
 ];
 async function init(db:D1Database){for(const q of schema)await db.prepare(q).run();}
 async function readBody(req:Request):Promise<Row>{try{return await req.json() as Row;}catch{return {};}}
+// Desktop builds use a loopback HTTP origin; allow only localhost/127.0.0.1.
 function cors(req:Request,env:Env){const origin=req.headers.get("Origin")||"";const allowed=["https://colony-gestion.pages.dev","https://localhost","capacitor://localhost",env.APP_ORIGIN||""];const desktopLocal=/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);return {"Access-Control-Allow-Origin":allowed.includes(origin)||desktopLocal?origin:allowed[0],"Access-Control-Allow-Methods":"GET,POST,PUT,DELETE,OPTIONS","Access-Control-Allow-Headers":"Content-Type,Authorization","Vary":"Origin"};}
 function reply(data:unknown,status:number,headers:Record<string,string>){return json(data,status,headers);}
 function safeUser(u:Row,role="user"){return {id:u.id,name:u.name,email:u.email,phone:u.phone,role,status:u.status,plan:u.plan||"free",expiresAt:u.expires_at||null,mustChangePassword:!!u.must_change_password};}
