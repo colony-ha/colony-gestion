@@ -18,6 +18,8 @@ permissions:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    env:
+      CAPGO_TOKEN: ${{ secrets.CAPGO_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,12 +36,10 @@ jobs:
         run: npm run build
 
       - name: Publish OTA bundle to Capgo
-        if: ${{ secrets.CAPGO_TOKEN != '' }}
-        env:
-          CAPGO_TOKEN: ${{ secrets.CAPGO_TOKEN }}
+        if: env.CAPGO_TOKEN != ''
         run: npx --yes @capgo/cli bundle upload --channel production --apikey "$CAPGO_TOKEN"
 
       - name: Explain missing Capgo setup
-        if: ${{ secrets.CAPGO_TOKEN == '' }}
+        if: env.CAPGO_TOKEN == ''
         run: |
           echo "::notice::Web build passed. Add the CAPGO_TOKEN repository secret after registering com.colony.gestion in Capgo to enable automatic phone updates."
