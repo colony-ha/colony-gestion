@@ -8,6 +8,14 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: false,
   },
+  plugins: {
+    CapacitorUpdater: {
+      appId: 'com.colony.gestion',
+      defaultChannel: 'production',
+      autoUpdate: 'atBackground',
+      resetWhenUpdate: false,
+    },
+  },
 };
 
 export default config;
