@@ -42,42 +42,7 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
-      - name: Apply COLONY black and gold Android launcher icon
-        shell: bash
-        run: |
-          mkdir -p android/app/src/main/res/drawable-nodpi android/app/src/main/res/mipmap-anydpi-v26
-          cat > android/app/src/main/res/drawable-nodpi/ic_colony_foreground.xml <<'EOF'
-          <vector xmlns:android="http://schemas.android.com/apk/res/android"
-              android:width="108dp" android:height="108dp"
-              android:viewportWidth="128" android:viewportHeight="128">
-              <path android:fillColor="#00000000" android:strokeColor="#D8BA76" android:strokeWidth="3" android:pathData="M8,8 L120,8 L120,120 L8,120 Z"/>
-              <path android:fillColor="#D8BA76" android:pathData="M48,18 L80,18 L80,27 L48,27 Z M54,27 L74,27 L74,32 L54,32 Z"/>
-              <path android:fillColor="#00000000" android:strokeColor="#D8BA76" android:strokeWidth="4" android:pathData="M42,33 L42,67 M42,33 L86,33 L86,67"/>
-              <path android:fillColor="#D8BA76" android:pathData="M48,42 L53,47 L61,37 L64,40 L53,54 L45,45 Z M48,55 L53,60 L61,50 L64,53 L53,67 L45,58 Z"/>
-              <path android:fillColor="#D8BA76" android:pathData="M68,43 L80,43 L80,47 L68,47 Z M68,56 L80,56 L80,60 L68,60 Z"/>
-              <path android:fillColor="#00000000" android:strokeColor="#D8BA76" android:strokeWidth="3" android:pathData="M17,48 L34,45 L39,76 L22,79 Z"/>
-              <path android:fillColor="#D8BA76" android:pathData="M23,53 L32,51 L33,56 L24,58 Z M24,62 L28,61 L29,65 L25,66 Z M31,61 L35,60 L36,64 L32,65 Z M26,69 L30,68 L31,72 L27,73 Z"/>
-              <path android:fillColor="#D8BA76" android:pathData="M69,81 L78,81 L78,75 L87,75 L87,67 L96,67 L96,58 L105,58 L105,48 L114,48 L114,43 L119,51 L110,56 L110,53 L101,53 L101,63 L92,63 L92,72 L83,72 L83,78 L74,78 L74,84 L69,84 Z"/>
-              <path android:fillColor="#00000000" android:strokeColor="#D8BA76" android:strokeWidth="3" android:pathData="M14,91 Q64,75 114,91"/>
-          </vector>
-          EOF
-          cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<'EOF'
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-              <background android:drawable="@color/ic_launcher_background"/>
-              <foreground android:drawable="@drawable/ic_colony_foreground"/>
-          </adaptive-icon>
-          EOF
-          cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml <<'EOF'
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-              <background android:drawable="@color/ic_launcher_background"/>
-              <foreground android:drawable="@drawable/ic_colony_foreground"/>
-          </adaptive-icon>
-          EOF
-          mkdir -p android/app/src/main/res/values
-          cat > android/app/src/main/res/values/ic_launcher_background.xml <<'EOF'
-          <resources><color name="ic_launcher_background">#090A09</color></resources>
-          EOF
-      - name: Generate real launcher PNG icons for every Android density
+      - name: Generate complete COLONY launcher icons without cropping
         shell: bash
         run: |
           npm install --no-save sharp
@@ -86,6 +51,7 @@ jobs:
           const fs = require('fs');
           const path = require('path');
           const source = 'public/colony-icon.svg';
+          const res = 'android/app/src/main/res';
           const sizes = [
             ['mipmap-mdpi', 48],
             ['mipmap-hdpi', 72],
@@ -95,12 +61,35 @@ jobs:
           ];
           (async () => {
             for (const [folder, size] of sizes) {
-              const dir = path.join('android/app/src/main/res', folder);
+              const dir = path.join(res, folder);
               fs.mkdirSync(dir, { recursive: true });
-              const png = await sharp(source).resize(size, size, { fit: 'contain' }).png().toBuffer();
+              const png = await sharp(source).resize(size, size, { fit: 'contain', background: '#090A09' }).png().toBuffer();
               fs.writeFileSync(path.join(dir, 'ic_launcher.png'), png);
               fs.writeFileSync(path.join(dir, 'ic_launcher_round.png'), png);
             }
+            // Adaptive foreground: keep the entire original square logo inside Android's safe zone.
+            const foreground = await sharp({
+              create: { width: 432, height: 432, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } }
+            }).composite([{
+              input: await sharp(source).resize(300, 300, { fit: 'contain' }).png().toBuffer(),
+              left: 66,
+              top: 66
+            }]).png().toBuffer();
+            const drawableDir = path.join(res, 'drawable-nodpi');
+            fs.mkdirSync(drawableDir, { recursive: true });
+            fs.writeFileSync(path.join(drawableDir, 'ic_launcher_foreground.png'), foreground);
+            const anydpi = path.join(res, 'mipmap-anydpi-v26');
+            fs.mkdirSync(anydpi, { recursive: true });
+            fs.writeFileSync(path.join(anydpi, 'ic_launcher.xml'),
+              '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@color/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>');
+            fs.writeFileSync(path.join(anydpi, 'ic_launcher_round.xml'),
+              '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@color/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>');
+            const values = path.join(res, 'values');
+            fs.mkdirSync(values, { recursive: true });
+            fs.writeFileSync(path.join(values, 'ic_launcher_background.xml'),
+              '<resources><color name="ic_launcher_background">#090A09</color></resources>');
+            const oldVector = path.join(drawableDir, 'ic_colony_foreground.xml');
+            if (fs.existsSync(oldVector)) fs.unlinkSync(oldVector);
           })().catch(error => { console.error(error); process.exit(1); });
           NODE
       - name: Build debug APK
