@@ -1,5 +1,11 @@
 name: Deploy COLONY GESTION API
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "worker/**"
+      - "wrangler.toml"
   workflow_dispatch:
 jobs:
   deploy:
