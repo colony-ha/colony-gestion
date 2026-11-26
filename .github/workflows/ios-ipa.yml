@@ -1,0 +1,82 @@
+name: Build COLONY GESTION iOS IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'package.json'
+      - 'capacitor.config.ts'
+      - '.github/workflows/ios-ipa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios:
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Build web application
+        run: npm run build
+      - name: Add iOS platform
+        run: npx cap add ios
+      - name: Sync Capacitor iOS project
+        run: npx cap sync ios
+      - name: Generate COLONY GESTION app icon
+        run: |
+          npm install --no-save sharp
+          mkdir -p ios/App/App/Assets.xcassets/AppIcon.appiconset
+          node <<'NODE'
+          const sharp = require('sharp');
+          const fs = require('fs');
+          (async () => {
+            const dir = 'ios/App/App/Assets.xcassets/AppIcon.appiconset';
+            await sharp('public/colony-icon.svg')
+              .resize(1024, 1024, { fit: 'contain', background: '#050505' })
+              .png()
+              .toFile(dir + '/AppIcon-1024.png');
+            fs.writeFileSync(dir + '/Contents.json', JSON.stringify({
+              images: [{ filename: 'AppIcon-1024.png', idiom: 'universal', platform: 'ios', size: '1024x1024' }],
+              info: { author: 'xcode', version: 1 }
+            }, null, 2) + '\n');
+          })().catch(err => { console.error(err); process.exit(1); });
+          NODE
+      - name: Build unsigned iOS app for Sideloadly
+        run: |
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/ios-derived \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+      - name: Package unsigned IPA
+        run: |
+          APP_PATH="build/ios-derived/Build/Products/Release-iphoneos/App.app"
+          test -d "$APP_PATH"
+          mkdir -p build/ipa/Payload
+          ditto "$APP_PATH" build/ipa/Payload/App.app
+          cd build/ipa
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/COLONY_GESTION_UNSIGNED.ipa" Payload
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: COLONY_GESTION_iOS_IPA
+          path: COLONY_GESTION_UNSIGNED.ipa
+          if-no-files-found: error
+          retention-days: 30
