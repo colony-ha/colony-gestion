@@ -67,29 +67,23 @@ jobs:
               fs.writeFileSync(path.join(dir, 'ic_launcher.png'), png);
               fs.writeFileSync(path.join(dir, 'ic_launcher_round.png'), png);
             }
-            // Adaptive foreground: keep the entire original square logo inside Android's safe zone.
-            const foreground = await sharp({
-              create: { width: 432, height: 432, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } }
-            }).composite([{
-              input: await sharp(source).resize(300, 300, { fit: 'contain' }).png().toBuffer(),
-              left: 66,
-              top: 66
-            }]).png().toBuffer();
+            // Use standard density-specific PNG launcher icons for maximum launcher compatibility.
+            // Remove generated adaptive resources: a broken adaptive XML can make Android show its fallback robot icon.
+            const adaptiveDir = path.join(res, 'mipmap-anydpi-v26');
+            if (fs.existsSync(adaptiveDir)) fs.rmSync(adaptiveDir, { recursive: true, force: true });
             const drawableDir = path.join(res, 'drawable-nodpi');
             fs.mkdirSync(drawableDir, { recursive: true });
-            fs.writeFileSync(path.join(drawableDir, 'ic_launcher_foreground.png'), foreground);
-            const anydpi = path.join(res, 'mipmap-anydpi-v26');
-            fs.mkdirSync(anydpi, { recursive: true });
-            fs.writeFileSync(path.join(anydpi, 'ic_launcher.xml'),
-              '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@color/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>');
-            fs.writeFileSync(path.join(anydpi, 'ic_launcher_round.xml'),
-              '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@color/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/></adaptive-icon>');
-            const values = path.join(res, 'values');
-            fs.mkdirSync(values, { recursive: true });
-            fs.writeFileSync(path.join(values, 'ic_launcher_background.xml'),
-              '<resources><color name="ic_launcher_background">#090A09</color></resources>');
-            const oldVector = path.join(drawableDir, 'ic_colony_foreground.xml');
-            if (fs.existsSync(oldVector)) fs.unlinkSync(oldVector);
+            const oldForeground = path.join(drawableDir, 'ic_launcher_foreground.png');
+            if (fs.existsSync(oldForeground)) fs.unlinkSync(oldForeground);
+            // Ensure the generated manifest explicitly references the launcher PNG resources.
+            const manifest = 'android/app/src/main/AndroidManifest.xml';
+            let xml = fs.readFileSync(manifest, 'utf8');
+            xml = xml.replace(/android:icon="[^"]*"/, 'android:icon="@mipmap/ic_launcher"');
+            if (xml.includes('android:roundIcon=')) {
+              xml = xml.replace(/android:roundIcon="[^"]*"/, 'android:roundIcon="@mipmap/ic_launcher_round"');
+            }
+            fs.writeFileSync(manifest, xml);
+            console.log('Launcher manifest references:', xml.match(/android:(?:roundIcon|icon)="[^"]*"/g));
           })().catch(error => { console.error(error); process.exit(1); });
           NODE
       - name: Build debug APK
