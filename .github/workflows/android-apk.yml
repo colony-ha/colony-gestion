@@ -77,6 +77,32 @@ jobs:
           cat > android/app/src/main/res/values/ic_launcher_background.xml <<'EOF'
           <resources><color name="ic_launcher_background">#090A09</color></resources>
           EOF
+      - name: Generate real launcher PNG icons for every Android density
+        shell: bash
+        run: |
+          npm install --no-save sharp
+          node <<'NODE'
+          const sharp = require('sharp');
+          const fs = require('fs');
+          const path = require('path');
+          const source = 'public/colony-icon.svg';
+          const sizes = [
+            ['mipmap-mdpi', 48],
+            ['mipmap-hdpi', 72],
+            ['mipmap-xhdpi', 96],
+            ['mipmap-xxhdpi', 144],
+            ['mipmap-xxxhdpi', 192],
+          ];
+          (async () => {
+            for (const [folder, size] of sizes) {
+              const dir = path.join('android/app/src/main/res', folder);
+              fs.mkdirSync(dir, { recursive: true });
+              const png = await sharp(source).resize(size, size, { fit: 'contain' }).png().toBuffer();
+              fs.writeFileSync(path.join(dir, 'ic_launcher.png'), png);
+              fs.writeFileSync(path.join(dir, 'ic_launcher_round.png'), png);
+            }
+          })().catch(error => { console.error(error); process.exit(1); });
+          NODE
       - name: Build debug APK
         working-directory: android
         run: chmod +x gradlew && ./gradlew assembleDebug
