@@ -1,6 +1,12 @@
 name: Deploy COLONY GESTION API
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'worker/**'
+      - 'wrangler.toml'
+      - '.github/workflows/deploy-worker.yml'
 jobs:
   deploy:
     runs-on: ubuntu-latest
