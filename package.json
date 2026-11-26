@@ -52,7 +52,8 @@
           ]
         }
       ],
-      "artifactName": "COLONY_GESTION_SETUP_${version}.${ext}"
+      "artifactName": "COLONY_GESTION_SETUP_${version}.${ext}",
+      "icon": "build/colony.ico"
     },
     "nsis": {
       "oneClick": false,
