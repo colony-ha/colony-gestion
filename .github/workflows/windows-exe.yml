@@ -1,0 +1,42 @@
+name: Build COLONY GESTION Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'electron/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/windows-exe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm install
+      - name: Build application
+        run: npm run build
+      - name: Create Windows installer
+        run: npx electron-builder --win nsis --x64
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: COLONY_GESTION_WINDOWS
+          path: release/*.exe
+          if-no-files-found: error
+          retention-days: 30
