@@ -42,13 +42,48 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+      - name: Apply COLONY black and gold Android launcher icon
+        shell: bash
+        run: |
+          mkdir -p android/app/src/main/res/drawable-nodpi android/app/src/main/res/mipmap-anydpi-v26
+          cat > android/app/src/main/res/drawable-nodpi/ic_colony_foreground.xml <<'EOF'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="108dp" android:height="108dp"
+              android:viewportWidth="128" android:viewportHeight="128">
+              <path android:fillColor="#00000000" android:strokeColor="#C9A65C"
+                  android:strokeWidth="3" android:pathData="M16,8 L112,8 Q120,8 120,16 L120,112 Q120,120 112,120 L16,120 Q8,120 8,112 L8,16 Q8,8 16,8 Z"/>
+              <path android:fillColor="#00000000" android:strokeColor="#D8BA76"
+                  android:strokeWidth="10" android:strokeLineCap="round"
+                  android:pathData="M86,34 A38,38 0,1 0,86 94"/>
+              <path android:fillColor="#D8BA76" android:pathData="M72,50 L92,50 L92,78 L72,78 Z"/>
+              <path android:fillColor="#090A09" android:pathData="M77,56 L87,56 L87,72 L77,72 Z"/>
+          </vector>
+          EOF
+          cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<'EOF'
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@color/ic_launcher_background"/>
+              <foreground android:drawable="@drawable/ic_colony_foreground"/>
+          </adaptive-icon>
+          EOF
+          cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml <<'EOF'
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@color/ic_launcher_background"/>
+              <foreground android:drawable="@drawable/ic_colony_foreground"/>
+          </adaptive-icon>
+          EOF
+          mkdir -p android/app/src/main/res/values
+          cat > android/app/src/main/res/values/ic_launcher_background.xml <<'EOF'
+          <resources><color name="ic_launcher_background">#090A09</color></resources>
+          EOF
       - name: Build debug APK
         working-directory: android
         run: chmod +x gradlew && ./gradlew assembleDebug
+      - name: Rename APK for easy installation
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/colony_gestion.apk
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: colony-gestion-android-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: COLONY_GESTION
+          path: android/app/build/outputs/apk/debug/colony_gestion.apk
           if-no-files-found: error
           retention-days: 30
