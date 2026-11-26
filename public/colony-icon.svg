@@ -1,17 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0a6"/><stop offset=".48" stop-color="#e7ae32"/><stop offset="1" stop-color="#a86b08"/></linearGradient><filter id="s"><feGaussianBlur stdDeviation="5"/></filter></defs>
-<rect width="512" height="512" rx="76" fill="#090909"/><rect x="8" y="8" width="496" height="496" rx="68" fill="none" stroke="url(#g)" stroke-width="8"/>
-<g fill="none" stroke="url(#g)" stroke-linecap="round" stroke-linejoin="round">
-<path d="M165 76h182q14 0 14 14v112M165 76q-14 0-14 14v112" stroke-width="12"/>
-<path d="M210 55h92q10 0 10 10v27q0 10-10 10h-92q-10 0-10-10V65q0-10 10-10z" fill="url(#g)" stroke="none"/>
-<path d="m213 132 13 13 24-29M213 166l13 13 24-29M213 200l13 13 24-29" stroke-width="9"/>
-<path d="M260 139h70M260 173h70M260 207h70" stroke-width="8"/>
-<g transform="rotate(-10 125 190)"><rect x="38" y="120" width="118" height="154" rx="18" fill="#101010" stroke="#f0d28b" stroke-width="5"/><rect x="54" y="137" width="86" height="29" rx="6" fill="url(#g)" stroke="none"/><g fill="url(#g)" stroke="none"><rect x="55" y="181" width="22" height="18" rx="4"/><rect x="86" y="181" width="22" height="18" rx="4"/><rect x="117" y="181" width="22" height="18" rx="4"/><rect x="55" y="210" width="22" height="18" rx="4"/><rect x="86" y="210" width="22" height="18" rx="4"/><rect x="117" y="210" width="22" height="18" rx="4"/><rect x="55" y="239" width="22" height="18" rx="4"/><rect x="86" y="239" width="22" height="18" rx="4"/><rect x="117" y="239" width="22" height="18" rx="4"/></g></g>
-<path d="M280 252h26v-12h28v-25h28v-27h28v-27h28v-32" stroke-width="7" fill="none"/>
-<path d="m401 129 17-19 1 28z" fill="url(#g)" stroke="none"/>
-<path d="M38 286Q250 223 475 286" stroke-width="8"/>
+<defs>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4b4"/><stop offset=".3" stop-color="#ffd34f"/><stop offset=".68" stop-color="#d99518"/><stop offset="1" stop-color="#8b5108"/></linearGradient>
+ <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#242321"/><stop offset="1" stop-color="#080808"/></linearGradient>
+ <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="512" height="512" rx="54" fill="#050505"/>
+<path d="M48 256C42 164 143 72 265 62" fill="none" stroke="url(#gold)" stroke-width="5" opacity=".9"/>
+<g opacity=".95" fill="url(#gold)">
+ <rect x="264" y="166" width="24" height="110" rx="3"/><rect x="301" y="143" width="25" height="133" rx="3"/><rect x="340" y="116" width="26" height="160" rx="3"/><rect x="380" y="88" width="28" height="188" rx="3"/>
 </g>
-<text x="256" y="366" text-anchor="middle" font-family="Arial,sans-serif" font-size="66" font-weight="900" letter-spacing="3" fill="url(#g)">COLONY</text>
-<text x="256" y="419" text-anchor="middle" font-family="Arial,sans-serif" font-size="42" font-weight="800" letter-spacing="10" fill="url(#g)">GESTION</text>
-<path d="M44 445h424" stroke="url(#g)" stroke-width="2"/><text x="256" y="475" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" letter-spacing="1.5" fill="#f4d98e">GÉRER • ORGANISER • DÉVELOPPER</text>
+<path d="M160 212C250 196 341 135 424 55" fill="none" stroke="url(#gold)" stroke-width="12" stroke-linecap="round" filter="url(#glow)"/>
+<path d="m405 55 38-16-7 42z" fill="url(#gold)"/>
+<g transform="rotate(-5 160 220)">
+ <rect x="62" y="104" width="204" height="190" rx="17" fill="url(#panel)" stroke="url(#gold)" stroke-width="5"/>
+ <rect x="126" y="88" width="76" height="31" rx="9" fill="url(#gold)"/>
+ <circle cx="164" cy="178" r="35" fill="none" stroke="url(#gold)" stroke-width="12"/>
+ <path d="M164 143A35 35 0 0 1 197 190L164 178Z" fill="url(#gold)"/>
+ <path d="M164 178 138 154M164 178l28 16" stroke="#0b0b0b" stroke-width="4"/>
+ <g stroke="url(#gold)" stroke-width="6" stroke-linecap="round"><path d="M215 150h30M215 173h30M215 196h30M91 244h22M125 232v12M153 220v24M181 208v36"/></g>
+ <path d="M89 256h158" stroke="url(#gold)" stroke-width="4"/>
+</g>
+<g transform="rotate(7 338 330)">
+ <rect x="225" y="204" width="224" height="250" rx="23" fill="url(#panel)" stroke="url(#gold)" stroke-width="6"/>
+ <rect x="246" y="225" width="181" height="48" rx="8" fill="url(#gold)"/>
+ <text x="336" y="258" text-anchor="middle" font-family="monospace" font-size="27" font-weight="bold" fill="#15110a">123456</text>
+ <g fill="#17130b" stroke="url(#gold)" stroke-width="2">
+  <rect x="247" y="289" width="39" height="34" rx="7"/><rect x="296" y="289" width="39" height="34" rx="7"/><rect x="345" y="289" width="39" height="34" rx="7"/><rect x="394" y="289" width="34" height="34" rx="7"/>
+  <rect x="247" y="332" width="39" height="34" rx="7"/><rect x="296" y="332" width="39" height="34" rx="7"/><rect x="345" y="332" width="39" height="34" rx="7"/><rect x="394" y="332" width="34" height="34" rx="7"/>
+  <rect x="247" y="375" width="39" height="34" rx="7"/><rect x="296" y="375" width="39" height="34" rx="7"/><rect x="345" y="375" width="39" height="34" rx="7"/><rect x="394" y="375" width="34" height="34" rx="7"/>
+ </g>
+ <g fill="url(#gold)" font-family="Arial,sans-serif" font-size="22" font-weight="bold" text-anchor="middle"><text x="266" y="314">7</text><text x="315" y="314">8</text><text x="364" y="314">9</text><text x="411" y="314">÷</text><text x="266" y="357">4</text><text x="315" y="357">5</text><text x="364" y="357">6</text><text x="411" y="357">×</text><text x="266" y="400">1</text><text x="315" y="400">2</text><text x="364" y="400">3</text><text x="411" y="400">−</text></g>
+</g>
+<path d="M35 433Q255 475 478 430" fill="none" stroke="url(#gold)" stroke-width="4"/>
+<text x="256" y="478" text-anchor="middle" font-family="Georgia,serif" font-size="43" font-weight="bold" letter-spacing="3" fill="url(#gold)">COLONY</text>
+<text x="256" y="505" text-anchor="middle" font-family="Arial,sans-serif" font-size="21" font-weight="bold" letter-spacing="8" fill="url(#gold)">GESTION</text>
 </svg>
